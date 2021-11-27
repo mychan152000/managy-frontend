@@ -3,7 +3,7 @@ import { Component } from 'react'
 export default class SignIn extends Component {
 
     state = {
-        username: '',
+        email: '',
         password: ''
     }
 
@@ -23,8 +23,8 @@ export default class SignIn extends Component {
             <div>
                 <form onSubmit={this.handleSubmit}>
                     <h1>Sign In Form</h1>
-                    <label>Username :</label>
-                    <input name='username' value={this.state.username} onChange={this.handleChange}/>
+                    <label>Email:</label>
+                    <input name='email' value={this.state.email} onChange={this.handleChange}/>
                     <label>Password :</label>
                     <input type="password" name='password' value={this.state.password} onChange={this.handleChange}/>
                     {this.props.error ? <p style={{color: 'red'}}>{this.props.error}</p> : null}

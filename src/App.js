@@ -14,43 +14,48 @@ class App extends Component {
   componentDidMount(){
     let token = localStorage.getItem('token')
     if(token){
-      fetch('http://localhost:3000/profile', {
-        method: "GET",
+      fetch("http://localhost:3000/private/test", {
         headers: {
-          "Authorization": `Bearer ${token}`
-        }
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("token"),
+        },
       })
-      .then(response => response.json())
-      .then(result => {
-        if(result.id){
-          this.setState({
-            user: result
-          })
-        }
-      })
+        .then((res) => {
+          if (res.ok) {
+            return res.json();
+          } else if (res.status == "401") {
+            throw new Error("Unauthorized Request. Must be signed in.");
+          }
+        })
+        .then((json) => console.dir(json))
+        .catch((err) => console.error(err));
     }
   }
 
   signUp = user => {
-    fetch('http://localhost:3000/users', {
-      method: "POST",
+    fetch("http://localhost:3000/signup", {
+      method: "post",
       headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        user:{
-          username: user.username,
-          password: user.password,
-          name: user.name,
-          nick_name: user.nickName,
-          date: user.dob,
-          active: user.active,
+        user: {
+          email: user.email,
+          password: user.password
+        },
+      }),
+    })
+      .then((res) => {
+        if (res.ok) {
+          console.log(res.headers.get("Authorization"));
+          localStorage.setItem("token", res.headers.get("Authorization"));
+          return res.json();
+        } else {
+          throw new Error(res);
         }
       })
-    })
-    .then(response => response.json())
-    .then(user => this.setState({ user: user }) )
+      .then((json) => console.dir(json))
+      .catch((err) => console.error(err));
   }
 
   signIn = (user) => {
@@ -62,7 +67,7 @@ class App extends Component {
         },
         body: JSON.stringify({
             user: {
-                username: user.username,
+                email: user.email,
                 password: user.password
             }
         })
@@ -86,7 +91,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        {this.state.user.username ? <h2>Welcome {this.state.user.first_name}</h2> : (
+        {this.state.user.email ? <h2>Welcome {this.state.user.first_name}</h2> : (
           <>
           <SignIn signIn={this.signIn} error={this.state.error} />
           <SignUp signUp={this.signUp} />
